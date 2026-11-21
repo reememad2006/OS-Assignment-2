@@ -1,5 +1,5 @@
 
-package com.osassignment.scheduler;
+package os.scheduler;
 
 import java.util.ArrayList;
 import java.util.List;

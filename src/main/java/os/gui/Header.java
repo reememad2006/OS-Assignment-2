@@ -1,7 +1,6 @@
-package edu.cu.os241.gui;
+package os.gui;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 

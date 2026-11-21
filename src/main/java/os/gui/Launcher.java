@@ -1,4 +1,4 @@
-package edu.cu.os241.gui;
+package os.gui;
 import javafx.scene.*;
 import javafx.application.Application;
 import javafx.stage.Stage;

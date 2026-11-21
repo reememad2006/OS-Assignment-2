@@ -1,4 +1,4 @@
-package edu.cu.os241.gui;
+package os.gui;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;

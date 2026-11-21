@@ -1,5 +1,5 @@
 
-package com.osassignment.scheduler;
+package os.scheduler;
 
 public class Process {
 

@@ -1,12 +1,12 @@
-package edu.cu.os241.gui;
+package os.gui;
 
 import javafx.geometry.Insets;
-import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
-public class Dashboard extends VBox {
-    Dashboard(){
-        Label title = new Label("Dashboard");
+public class Process extends VBox {
+    Process(){
+        Label title = new Label("Process");
         getChildren().add(title);
         setPadding(new Insets(20));
         setSpacing(15);
