@@ -14,13 +14,14 @@ public class MainLayout extends BorderPane {
         setBottom(statusbar);
     }
     void DashboardView(){
+
         setCenter(new Dashboard());
     }
     void SimulationView(){
         setCenter(new Simulation());
     }
     void ProcessView(){
-        setCenter(new Process());
+        setCenter(new ProcessPage());
     }
     void AnalyticsView(){
         setCenter(new Analytics());
