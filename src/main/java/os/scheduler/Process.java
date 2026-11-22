@@ -8,6 +8,8 @@ public class Process {
     private int burstTime;
     private int remainingTime;
     private int priority;
+    private boolean batch;
+    private int tier2EntryTime;
 
     private int waitingTime;
     private int turnaroundTime;
@@ -74,6 +76,10 @@ public class Process {
         return firstStartTime;
     }
 
+    public boolean isBatch(){return batch;}
+
+    public int getTier2EntryTime(){return tier2EntryTime;}
+
     public void setRemainingTime(int remainingTime) {
         this.remainingTime = remainingTime;
     }
@@ -98,6 +104,10 @@ public class Process {
         this.firstStartTime = firstStartTime;
     }
 
+    public void setBatch(boolean batch){this.batch = batch;}
+
+    public void setTier2EntryTime(int tier2EntryTime){this.tier2EntryTime = tier2EntryTime;}
+
     @Override
     public String toString() {
         return "Process " + id +
@@ -115,5 +125,7 @@ public class Process {
         responseTime = 0;
         completionTime = 0;
         firstStartTime = -1;
+        batch = false;
+        tier2EntryTime = 0;
     }
 }
