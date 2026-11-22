@@ -7,11 +7,11 @@ public class ACSScheduler implements Scheduler{
     private final int contextSwitch;
 
     // tiers
-
     private final Queue<Process> tier1 = new ArrayDeque<>(); // round-robin
-    private final PriorityQueue<Process> tier2 =
-            new PriorityQueue<>(Comparator.comparingInt(Process::getPriority)); // may be changed by tier2's writer.
+    private final List<Process> tier2 = new ArrayList<>();  // demotion
+
     // aging
+    private static final int agingInterval = 4;
 
     // simulation
     private List<Process> allProcesses;
@@ -115,7 +115,63 @@ public class ACSScheduler implements Scheduler{
         tier2.add(p);
     }
 
-    // tier 2 & 3
-    private void runTier2(){} // demoted processes will make the loop run forever until this is implemented.
-    private void applyAging(){}
+    // tier 2
+    private void runTier2(){
+        Process p = pickHighestPriority();
+        tier2.remove(p);
+
+        if (lastProcess != null && lastProcess != p) {
+            time += contextSwitch;
+            if (contextSwitch > 0) contextSwitchCount++;
+            addArrivals(time);
+        }
+
+        int start = time;
+        time += p.getRemainingTime();
+        p.setRemainingTime(0);
+        timeline.add(p.getId() + " " + start + "-" + time);
+
+        addArrivals(time);
+
+        finishProcess(p);
+        lastProcess = p;
+    }
+
+    // priority handling
+    private Process pickHighestPriority() {
+        Process best = tier2.get(0);
+        for (Process p : tier2)
+            if (isBetter(p, best)) best = p;
+
+        return best;
+    }
+
+    private boolean isBetter(Process a, Process b) {
+        int pa = getEffectivePriority(a);
+        int pb = getEffectivePriority(b);
+
+        if (pa != pb) return pa < pb;
+        if (a.getTier2EntryTime() != b.getTier2EntryTime())
+            return a.getTier2EntryTime() < b.getTier2EntryTime();
+
+        return a.getArrivalTime() < b.getArrivalTime();
+    }
+
+    private int getEffectivePriority(Process p) {
+        return applyAging(p);
+    }
+
+    private void finishProcess(Process p) {
+        p.setCompletionTime(time);
+        p.setTurnaroundTime(time - p.getArrivalTime());
+        p.setWaitingTime(p.getTurnaroundTime() - p.getBurstTime());
+        finishedCount++;
+    }
+
+    // applying aging
+    private int applyAging(Process p){
+        int waited = time - p.getTier2EntryTime();
+        int boost = waited / agingInterval;
+        return p.getPriority() - boost;
+    }
 }
