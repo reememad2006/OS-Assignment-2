@@ -1,31 +1,42 @@
 package os.gui;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
+import os.scheduler.Process;
 
 public class ProcessPage extends VBox {
-    ProcessPage(){
+    ProcessPage(ObservableList<Process> processes){
         Label title = new Label("Process");
+        idField.setPromptText("PID");
+        arrivalField.setPromptText("ArrivalTime");
+        burstField.setPromptText("BurstTime");
+        priorityField.setPromptText("Priority");
+        firstNameCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        secondNameCol.setCellValueFactory(new PropertyValueFactory<>("arrivalTime"));
+        thirdNameCol.setCellValueFactory(new PropertyValueFactory<>("burstTime"));
+        fourthNameCol.setCellValueFactory(new PropertyValueFactory<>("priority"));
         table.getColumns().addAll(firstNameCol, secondNameCol, thirdNameCol, fourthNameCol);
         table.setItems(processes);
-        getChildren().addAll(title, table);
+        runProcessPage.setOnAction(event -> {
+            Process process = new Process(idField.getText(), Integer.parseInt(arrivalField.getText()), Integer.parseInt(burstField.getText()), Integer.parseInt(priorityField.getText()));
+            processes.add(process);
+        });
+        getChildren().addAll(title, idField,arrivalField, burstField,priorityField, runProcessPage, table);
         setPadding(new Insets(20));
         setSpacing(15);
     }
-
-    ObservableList<Process> processes = FXCollections.observableArrayList();
-
     TableView<Process> table = new TableView<>();
-
     TableColumn<Process, String> firstNameCol = new TableColumn<>("PID");
-    TableColumn<Process, String> secondNameCol = new TableColumn<>("ArrivalTime");
-    TableColumn<Process, String> thirdNameCol = new TableColumn<>("BurstTime");
-    TableColumn<Process, String> fourthNameCol = new TableColumn<>("Priority");
+    TableColumn<Process, Integer> secondNameCol = new TableColumn<>("ArrivalTime");
+    TableColumn<Process, Integer> thirdNameCol = new TableColumn<>("BurstTime");
+    TableColumn<Process, Integer> fourthNameCol = new TableColumn<>("Priority");
 
+    TextField idField = new TextField();
+    TextField arrivalField = new TextField();
+    TextField burstField = new TextField();
+    TextField priorityField = new TextField();
+    Button runProcessPage = new Button("run");
 }
