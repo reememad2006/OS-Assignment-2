@@ -273,7 +273,7 @@ public class ACSScheduler implements Scheduler{
     }
 
     private void logAging() {
-        if (tier2.size() < 2) return;
+        if (tier2.isEmpty()) return;
 
         StringBuilder sb = new StringBuilder("--- Aging check at T=" + time + " ---\n");
 
