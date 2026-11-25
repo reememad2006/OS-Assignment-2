@@ -119,6 +119,7 @@ public class ACSScheduler implements Scheduler{
         else
         {
             demote(p);
+            logEvent(time, "Demotion: " + p.getId() + "moved to Tier 2", null, 0,0);
         }
 
         lastProcess = p;
