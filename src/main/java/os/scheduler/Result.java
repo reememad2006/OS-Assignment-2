@@ -9,6 +9,7 @@ public class Result {
 
     private final List<Process> processes;
     private final List<String> timeline;
+    private final List<String> tierMatrices;
     private final int totalTime;
     private final int contextSwitchCount;
 
@@ -19,6 +20,20 @@ public class Result {
 
         this.processes = new ArrayList<>(processes);
         this.timeline = new ArrayList<>(timeline);
+        this.tierMatrices = new ArrayList<>();
+        this.totalTime = totalTime;
+        this.contextSwitchCount = contextSwitchCount;
+    }
+
+    public Result(List<Process> processes,
+                  List<String> timeline,
+                  List<String> tierMatrices,
+                  int totalTime,
+                  int contextSwitchCount) {
+
+        this.processes = new ArrayList<>(processes);
+        this.timeline = new ArrayList<>(timeline);
+        this.tierMatrices = new ArrayList<>(tierMatrices);
         this.totalTime = totalTime;
         this.contextSwitchCount = contextSwitchCount;
     }
@@ -29,6 +44,10 @@ public class Result {
 
     public List<String> getTimeline() {
         return Collections.unmodifiableList(timeline);
+    }
+
+    public  List<String> getTierMatrices() {
+        return Collections.unmodifiableList(tierMatrices);
     }
 
     public int getTotalTime() {
