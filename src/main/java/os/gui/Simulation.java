@@ -44,8 +44,9 @@ public class Simulation extends VBox {
         averagesLabel.setWrapText(true);
         textarea.setEditable(false);
         getChildren().addAll(title, comboBox, textField, quantumField, runButton, textarea, metricsTable, averagesLabel);
-        setPadding(new Insets(20));
-        setSpacing(15);
+
+        setPadding(new Insets(15));
+        setSpacing(10);
         runButton.setOnAction(event -> {
             int contextSwitch = Integer.parseInt(textField.getText());
             Scheduler scheduler;
@@ -74,7 +75,7 @@ public class Simulation extends VBox {
     TableColumn<Process, String> idColumn = new TableColumn<>("Process");
     TableColumn<Process, Integer> CompleteColumn = new TableColumn<>("Complete Time");
     TableColumn<Process, Integer> WaitingColumn = new TableColumn<>("Waiting Time");
-    TableColumn<Process, Integer> ResponseColumn = new TableColumn<>("Response");
-    TableColumn<Process, Integer> TurnaroundColumn = new TableColumn<>("Turnaroung");
+    TableColumn<Process, Integer> ResponseColumn = new TableColumn<>("Response Time");
+    TableColumn<Process, Integer> TurnaroundColumn = new TableColumn<>("Turnaround Time");
     Label averagesLabel = new Label();
 }
