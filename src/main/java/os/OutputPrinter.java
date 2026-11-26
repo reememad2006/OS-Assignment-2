@@ -15,29 +15,25 @@ public class OutputPrinter {
         System.out.println("\nTimeline:");
         printTimeline(result.getTimeline());
 
-        if (!result.getTierMatrices().isEmpty()) {
-            System.out.println("\nDemotion Matrices:");
-            printTierMatrices(result.getTierMatrices());
-        }
-
         System.out.println("\nProcess Results:");
         for (Process p : result.getProcesses()) {
             System.out.println(
                     "Process " + p.getId()
-                               + " | Complete Time: " + p.getCompletionTime()
-                               + " | Waiting Time: " + p.getWaitingTime()
+                               + " | Arrival Time: " + p.getArrivalTime()
+                               + " | Finish Time: " + p.getCompletionTime()
                                + " | Turnaround Time: " + p.getTurnaroundTime()
+                               + " | Waiting Time: " + p.getWaitingTime()
                                + " | Response Time: " + p.getResponseTime()
             );
         }
 
-        System.out.printf("\nAverage Waiting Time: %.2f%n",
+        System.out.printf("\nAverage Turnaround Time: %.2f time units%n",
+                result.getAverageTurnaroundTime());
+
+        System.out.printf("Average Waiting Time: %.2f time units%n",
                           result.getAverageWaitingTime());
 
-        System.out.printf("Average Turnaround Time: %.2f%n",
-                          result.getAverageTurnaroundTime());
-
-        System.out.printf("Average Response Time: %.2f%n",
+        System.out.printf("Average Response Time: %.2f time units%n",
                           result.getAverageResponseTime());
 
         System.out.println("==================================");
@@ -74,17 +70,5 @@ public class OutputPrinter {
 
             start = end;
         }
-    }
-
-    private static void  printTierMatrices(List<String> matrices) {
-        boolean afterAging = false;
-
-        for (String entry : matrices) {
-            if (!afterAging) System.out.println("----------------------------------");
-            System.out.println(entry.stripTrailing());
-            afterAging = entry.startsWith("--- Aging");
-        }
-
-        System.out.println("----------------------------------");
     }
 }
