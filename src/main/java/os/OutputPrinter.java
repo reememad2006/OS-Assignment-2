@@ -71,4 +71,15 @@ public class OutputPrinter {
             start = end;
         }
     }
+    private static void  printTierMatrices(List<String> matrices) {
+        boolean afterAging = false;
+
+        for (String entry : matrices) {
+            if (!afterAging) System.out.println("----------------------------------");
+            System.out.println(entry.stripTrailing());
+            afterAging = entry.startsWith("--- Aging");
+        }
+
+        System.out.println("----------------------------------");
+    }
 }
