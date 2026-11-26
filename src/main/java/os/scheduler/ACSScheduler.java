@@ -16,13 +16,11 @@ public class ACSScheduler implements Scheduler{
     // simulation
     private List<Process> allProcesses;
     private List<String> timeline;
-    private List<String> demotionMatrix;
     private int time;
     private int nextArrivalIdx;
     private int finishedCount;
     private int contextSwitchCount;
     private Process lastProcess;
-    private final Map<Process, Integer> shownPriority = new HashMap<>();
 
     public ACSScheduler(int quantum, int contextSwitch){
         this.quantum = quantum;
@@ -40,9 +38,7 @@ public class ACSScheduler implements Scheduler{
         // resetting scheduler's state
         tier1.clear();
         tier2.clear();
-        shownPriority.clear();
         timeline = new ArrayList<>();
-        demotionMatrix = new ArrayList<>();
 
         time = 0;
         nextArrivalIdx = 0;
@@ -58,14 +54,10 @@ public class ACSScheduler implements Scheduler{
 
             else if(!tier2.isEmpty()){runTier2();}
 
-            else{
-                logEvent(time, "IDLE", null, 0, 0);
-                time = allProcesses.get(nextArrivalIdx).getArrivalTime();
-            }
+            else{time = allProcesses.get(nextArrivalIdx).getArrivalTime();}
         }
 
-        logEvent(time, "All processes finished", null, 0, 0);
-        return new Result(allProcesses, timeline, demotionMatrix, time, contextSwitchCount);
+        return new Result(allProcesses, timeline, time, contextSwitchCount);
     }
 
     // tier 1
@@ -79,18 +71,9 @@ public class ACSScheduler implements Scheduler{
 
     private void runTier1Slice(){
         Process p = tier1.poll();
-        boolean switched = false;
 
         if(lastProcess != null && lastProcess != p)
         {
-            if (contextSwitch > 0) {
-                switched = true;
-                logEvent(time, "Context switch saves " + lastProcess.getId()
-                        + " and loads " + p.getId(), p, 1, time);
-                timeline.add("CS " + time + "-" + (time + contextSwitch));
-                logArrivalsDuring(time, time + contextSwitch);
-            }
-
             time += contextSwitch;
             if(contextSwitch > 0){contextSwitchCount++;}
             addArrivals(time);
@@ -104,9 +87,6 @@ public class ACSScheduler implements Scheduler{
 
         int slice = Math.min(quantum, p.getRemainingTime());
         int start = time;
-
-        logEvent(start, "Running: " + p.getId(), switched ? null : p, switched ? 0 : 1, start);
-        logArrivalsDuring(start, start + slice);
 
         time += slice;
         p.setRemainingTime(p.getRemainingTime() - slice);
@@ -124,7 +104,10 @@ public class ACSScheduler implements Scheduler{
         else
         {
             demote(p);
-            logEvent(time, "Demotion: " + p.getId() + "moved to Tier 2", null, 0,0);
+<<<<<<< Updated upstream
+=======
+            logEvent(time, "Demotion: " + p.getId() + " moved to Tier 2", null, 0,0);
+>>>>>>> Stashed changes
         }
 
         lastProcess = p;
@@ -133,37 +116,21 @@ public class ACSScheduler implements Scheduler{
     private void demote(Process p){
         p.setBatch(true);
         p.setTier2EntryTime(time);
-        shownPriority.put(p, p.getPriority());
         tier2.add(p);
-
     }
 
     // tier 2
     private void runTier2(){
-        logAging();
         Process p = pickHighestPriority();
         tier2.remove(p);
-        boolean switched = false;
 
         if (lastProcess != null && lastProcess != p) {
-            if (contextSwitch > 0) {
-                switched = true;
-                logEvent(time, "Context switch saves " + lastProcess.getId()
-                        + " and loads " + p.getId(), p, 2, time);
-                timeline.add("CS " + time + "-" + (time + contextSwitch));
-                logArrivalsDuring(time, time + contextSwitch);
-            }
-
             time += contextSwitch;
             if (contextSwitch > 0) contextSwitchCount++;
             addArrivals(time);
         }
 
         int start = time;
-
-        logEvent(start, "Running: " + p.getId(), switched ? null : p, switched ? 0 : 2, start);
-        logArrivalsDuring(start, start + p.getRemainingTime());
-
         time += p.getRemainingTime();
         p.setRemainingTime(0);
         timeline.add(p.getId() + " " + start + "-" + time);
@@ -211,6 +178,9 @@ public class ACSScheduler implements Scheduler{
         int boost = waited / agingInterval;
         return p.getPriority() - boost;
     }
+<<<<<<< Updated upstream
+}
+=======
 
     private String describe(Process p, int remaining, int priority) {
         return p.getId() + " (remaining: " + remaining + ", Priority: " + priority + ")";
@@ -259,7 +229,7 @@ public class ACSScheduler implements Scheduler{
         int rem = (current == null) ? 0 : current.getRemainingTime();
 
         demotionMatrix.add(
-                "T=" + t + "|" + action + "\n"
+                "T= " + t + "| " + action + "\n"
                         + " Tier 1: " + formatTier1(t, current, tier, rem) + "\n"
                         + " Tier 2: " + formatTier2(t, current, tier, rem, shownSince)
         );
@@ -302,3 +272,4 @@ public class ACSScheduler implements Scheduler{
         if (tier2.size() > 1) demotionMatrix.add(sb.toString());
     }
 }
+>>>>>>> Stashed changes
