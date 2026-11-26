@@ -15,6 +15,11 @@ public class OutputPrinter {
         System.out.println("\nTimeline:");
         printTimeline(result.getTimeline());
 
+        if (!result.getTierMatrices().isEmpty()) {
+            System.out.println("\nDemotion Matrices:");
+            printTierMatrices(result.getTierMatrices());
+        }
+
         System.out.println("\nProcess Results:");
         for (Process p : result.getProcesses()) {
             System.out.println(
