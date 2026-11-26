@@ -1,5 +1,8 @@
+
 package os.gui;
+
 import javafx.collections.ObservableList;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Label;
@@ -11,15 +14,51 @@ import javafx.scene.chart.XYChart;
 import os.scheduler.ACSScheduler;
 import os.scheduler.Result;
 import java.util.ArrayList;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.control.ScrollPane;
+
 public class Analytics extends VBox {
-    Analytics(ObservableList<List<Process>> testCases){
+
+    Analytics(ObservableList<List<Process>> testCases) {
+
+        updateAnalytics(testCases);
+
+        testCases.addListener((ListChangeListener<List<Process>>) change -> {
+            updateAnalytics(testCases);
+        });
+    }
+
+    private void updateAnalytics(ObservableList<List<Process>> testCases) {
+
+        // Clear old charts and content
+        lineChart.getData().clear();
+        contextChart.getData().clear();
+        getChildren().clear();
+
         Label title = new Label("Analytics");
         Label subtitle = new Label(
                 "Analyze how Quantum and Context Switch affect scheduling performance."
         );
+
+        // Check if there are no saved test cases
+        if (testCases.isEmpty()) {
+
+            Label noData = new Label(
+                    "No data available. Please save test cases first."
+            );
+
+            VBox content = new VBox(
+                    15,
+                    title,
+                    subtitle,
+                    noData
+            );
+
+            content.setPadding(new Insets(25));
+
+            getChildren().add(content);
+
+            return;
+        }
 
         lineChart.setTitle("Impact of Time Quantum");
         contextChart.setTitle("Impact of Context Switch");
@@ -43,36 +82,50 @@ public class Analytics extends VBox {
 
             XYChart.Series<Number, Number> waiting = new XYChart.Series<>();
             XYChart.Series<Number, Number> turnaround = new XYChart.Series<>();
+
             waiting.setName("Test Case " + (testCases.indexOf(testCase) + 1) + " - waiting");
-            turnaround.setName("Test Case " + (testCases.indexOf(testCase) +1) +  " - turnaround");
+            turnaround.setName("Test Case " + (testCases.indexOf(testCase) + 1) + " - turnaround");
 
             for (int quantum = 1; quantum <= 5; quantum++) {
+
                 ACSScheduler scheduler = new ACSScheduler(quantum, 1);
                 Result result = scheduler.run(copyProcesses(testCase));
+
                 waiting.getData().add(new XYChart.Data<>(quantum, result.getAverageWaitingTime()));
                 turnaround.getData().add(new XYChart.Data<>(quantum, result.getAverageTurnaroundTime()));
             }
+
             lineChart.getData().addAll(waiting, turnaround);
         }
-        for(List<Process> testCase:testCases){
+
+        for (List<Process> testCase : testCases) {
+
             XYChart.Series<Number, Number> cswaiting = new XYChart.Series<>();
             XYChart.Series<Number, Number> csturnaround = new XYChart.Series<>();
+
             int caseNumber = testCases.indexOf(testCase) + 1;
+
             cswaiting.setName("Test Case " + caseNumber + " - Waiting");
             csturnaround.setName("Test Case " + caseNumber + " - Turnaround");
-            for(int cs=0; cs<=4;cs++){
+
+            for (int cs = 0; cs <= 4; cs++) {
+
                 ACSScheduler scheduler = new ACSScheduler(3, cs);
                 Result result = scheduler.run(copyProcesses(testCase));
+
                 cswaiting.getData().add(new XYChart.Data<>(cs, result.getAverageWaitingTime()));
                 csturnaround.getData().add(new XYChart.Data<>(cs, result.getAverageTurnaroundTime()));
             }
+
             contextChart.getData().addAll(cswaiting, csturnaround);
         }
+
         x_axis.setLabel("Time Quantum");
         y_axis.setLabel("Average Time");
 
         contextXaxis.setLabel("Context Switch Time");
         contextYaxis.setLabel("Average Time");
+
         Label quantumTitle = new Label("Quantum Analysis");
         Label contextTitle = new Label("Context Switch Analysis");
 
@@ -103,15 +156,22 @@ public class Analytics extends VBox {
 
         VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
     }
+
     NumberAxis x_axis = new NumberAxis();
     NumberAxis y_axis = new NumberAxis();
+
     NumberAxis contextXaxis = new NumberAxis();
     NumberAxis contextYaxis = new NumberAxis();
+
     LineChart<Number, Number> lineChart = new LineChart<>(x_axis, y_axis);
     LineChart<Number, Number> contextChart = new LineChart<>(contextXaxis, contextYaxis);
-    private List<Process> copyProcesses(List<Process> original){
-        List<Process> copies=new ArrayList<>();
-        for(Process p : original){
+
+    private List<Process> copyProcesses(List<Process> original) {
+
+        List<Process> copies = new ArrayList<>();
+
+        for (Process p : original) {
+
             copies.add(new Process(
                     p.getId(),
                     p.getArrivalTime(),
@@ -119,6 +179,7 @@ public class Analytics extends VBox {
                     p.getPriority()
             ));
         }
+
         return copies;
     }
 }

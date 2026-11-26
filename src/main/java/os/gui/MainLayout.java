@@ -10,6 +10,7 @@ public class MainLayout extends BorderPane {
     private final ObservableList<Process> processes;
     private final ObservableList<List<Process>> testCases;
     private final Dashboard dashboard;
+    private final Simulation simulation;
 
     MainLayout(){
         processes = FXCollections.observableArrayList();
@@ -18,6 +19,7 @@ public class MainLayout extends BorderPane {
         Sidebar sidebar = new Sidebar(this);
         StatusBar statusbar = new StatusBar();
         dashboard = new Dashboard(this, processes, testCases);
+        simulation = new Simulation(processes, dashboard);
         setTop(header);
         setCenter(dashboard);
         setLeft(sidebar);
@@ -28,9 +30,7 @@ public class MainLayout extends BorderPane {
         dashboard.updateCounts(processes, testCases);
         setCenter(dashboard);
     }
-    void SimulationView(){
-        setCenter(new Simulation(processes, dashboard));
-    }
+    void SimulationView(){setCenter(simulation);}
     void ProcessView() {
         setCenter(new ProcessPage(processes, testCases));
     }

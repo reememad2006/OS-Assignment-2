@@ -16,6 +16,7 @@ public class Dashboard extends VBox {
     private Label testCaseCount = new Label();
     private Label waitingValue = new Label("Not run yet");
     private Label turnaroundValue = new Label("Not run yet");
+    private Label responseTimeValue = new Label("Not run yet");
 
     Dashboard(MainLayout mainLayout,
               ObservableList<Process> processes,
@@ -32,7 +33,8 @@ public class Dashboard extends VBox {
                 createCard("Total Processes", processCount),
                 createCard("Saved Test Cases", testCaseCount),
                 createCard("Average Waiting", waitingValue),
-                createCard("Average Turnaround", turnaroundValue)
+                createCard("Average Turnaround", turnaroundValue),
+                createCard("Average Response", responseTimeValue)
         );
 
         Button processesButton = new Button("Manage Processes");
@@ -79,8 +81,17 @@ public class Dashboard extends VBox {
         testCaseCount.setText(String.valueOf(testCases.size()));
     }
 
-    void updateResults(double waiting, double turnaround) {
+    void updateResults(double waiting, double turnaround, double responseTime) {
         waitingValue.setText(String.format("%.2f", waiting));
         turnaroundValue.setText(String.format("%.2f", turnaround));
+        responseTimeValue.setText(String.format("%.2f", responseTime));
+    }
+
+    void clearResults() {
+
+        waitingValue.setText("0.00");
+        turnaroundValue.setText("0.00");
+        responseTimeValue.setText("0.00");
+
     }
 }

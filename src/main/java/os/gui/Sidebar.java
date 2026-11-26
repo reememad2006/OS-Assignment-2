@@ -6,10 +6,10 @@ public class Sidebar extends VBox{
     MainLayout mainLayout;
     Sidebar(MainLayout mainLayout){
         this.mainLayout =  mainLayout;
-        Button dashboardButton = new Button("dashboardButton");
-        Button simulationButton = new Button("simulationButton");
-        Button processButton = new Button("processButton");
-        Button analyticsButton = new Button("analyticsButton");
+        Button dashboardButton = new Button("Dashboard");
+        Button simulationButton = new Button("Simulation");
+        Button processButton = new Button("Processes");
+        Button analyticsButton = new Button("Analytics");
         dashboardButton.setMaxWidth(Double.MAX_VALUE);
         simulationButton.setMaxWidth(Double.MAX_VALUE);
         processButton.setMaxWidth(Double.MAX_VALUE);
