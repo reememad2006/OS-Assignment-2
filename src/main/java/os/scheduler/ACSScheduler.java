@@ -104,6 +104,10 @@ public class ACSScheduler implements Scheduler{
         else
         {
             demote(p);
+<<<<<<< Updated upstream
+=======
+            logEvent(time, "Demotion: " + p.getId() + " moved to Tier 2", null, 0,0);
+>>>>>>> Stashed changes
         }
 
         lastProcess = p;
@@ -174,4 +178,98 @@ public class ACSScheduler implements Scheduler{
         int boost = waited / agingInterval;
         return p.getPriority() - boost;
     }
+<<<<<<< Updated upstream
 }
+=======
+
+    private String describe(Process p, int remaining, int priority) {
+        return p.getId() + " (remaining: " + remaining + ", Priority: " + priority + ")";
+    }
+
+    private int effectivePriorityAt(Process p, int t) {
+        return p.getPriority() - (t - p.getTier2EntryTime()) / agingInterval;
+    }
+
+    private String formatTier1(int t, Process current, int tier, int remaining) {
+        List<String> parts = new ArrayList<>();
+
+        if (current != null && tier == 1)
+            parts.add(describe(current, remaining, current.getPriority()));
+
+        for (Process p : tier1)
+            parts.add(describe(p, p.getRemainingTime(), p.getPriority()));
+
+        for (int i = nextArrivalIdx; i < allProcesses.size()
+                && allProcesses.get(i).getArrivalTime() <=t; i++) {
+            Process p = allProcesses.get(i);
+            parts.add(describe(p, p.getRemainingTime(), p.getPriority()));
+        }
+
+        return parts.isEmpty() ? "[Empty]" : "[" +
+                String.join(", ", parts) + "]";
+    }
+
+    private String formatTier2(int t, Process current, int tier, int remaining, int shownSince) {
+        List<Process> all = new ArrayList<>(tier2);
+        if (current != null && tier == 2 && !all.contains(current))
+            all.add(current);
+
+        all.sort(Comparator.comparingInt(Process::getTier2EntryTime)
+                .thenComparingInt(Process::getArrivalTime));
+
+        List<String> parts = new ArrayList<>();
+        for (Process p : all)
+            parts.add(describe(p, p.getRemainingTime() == 0 && p == current ? remaining : p.getRemainingTime(),
+                    shownPriority.getOrDefault(p, p.getPriority())));
+
+        return parts.isEmpty() ? "[Empty]" : "[" + String.join(", ", parts) + "]";
+    }
+
+    private void logEvent(int t, String action, Process current, int tier, int shownSince) {
+        int rem = (current == null) ? 0 : current.getRemainingTime();
+
+        demotionMatrix.add(
+                "T= " + t + "| " + action + "\n"
+                        + " Tier 1: " + formatTier1(t, current, tier, rem) + "\n"
+                        + " Tier 2: " + formatTier2(t, current, tier, rem, shownSince)
+        );
+    }
+
+    private void logArrivalsDuring(int from, int to) {
+        int lastLogged = -1;
+        for (int i = nextArrivalIdx; i < allProcesses.size(); i++) {
+            int a = allProcesses.get(i).getArrivalTime();
+            if (a >= to) break;
+            if (a > from && a != lastLogged) {
+                StringBuilder ids = new StringBuilder();
+                for (int j = i; j < allProcesses.size()
+                        && allProcesses.get(j).getArrivalTime() == a; j++) {
+                    if (ids.length() > 0) ids.append(", ");
+                    ids.append(allProcesses.get(j).getId());
+                }
+
+                logEvent(a, "Arrival " + ids, null, 0, 0);
+                lastLogged = a;
+            }
+        }
+    }
+
+    private void logAging() {
+        if (tier2.isEmpty()) return;
+
+        StringBuilder sb = new StringBuilder("--- Aging check at T = " + time + " ---\n");
+
+        for (Process p : tier2) {
+            int waited = time - p.getTier2EntryTime();
+            int boost = waited / agingInterval;
+            shownPriority.put(p, p.getPriority() - boost);
+            sb.append(p.getId() + ": Waited from T = " + p.getTier2EntryTime() + " to T = " + time
+                    + " (" + waited + " units). Aging: " + waited + "/" + agingInterval
+                    + " = " + boost +". Effective Priority = " + p.getPriority()
+                    + " - " + boost + " = " + (p.getPriority() - boost) + "\n"
+            );
+        }
+        if (tier2.size() > 1) demotionMatrix.add(sb.toString());
+    }
+}
+>>>>>>> Stashed changes
