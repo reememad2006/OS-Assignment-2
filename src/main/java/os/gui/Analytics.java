@@ -1,4 +1,3 @@
-
 package os.gui;
 
 import javafx.collections.ObservableList;
@@ -17,8 +16,10 @@ import java.util.ArrayList;
 import javafx.scene.control.ScrollPane;
 
 public class Analytics extends VBox {
-
     Analytics(ObservableList<List<Process>> testCases) {
+
+        // Main Background Style
+        setStyle("-fx-background-color: #FBF7F2;");
 
         updateAnalytics(testCases);
 
@@ -35,25 +36,48 @@ public class Analytics extends VBox {
         getChildren().clear();
 
         Label title = new Label("Analytics");
+        title.setStyle(
+                        "-fx-font-size: 28px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
         Label subtitle = new Label(
                 "Analyze how Quantum and Context Switch affect scheduling performance."
         );
 
+        subtitle.setStyle(
+                        "-fx-font-size: 14px;" +
+                        "-fx-text-fill: #947E6D;"
+        );
+
         // Check if there are no saved test cases
         if (testCases.isEmpty()) {
-
             Label noData = new Label(
                     "No data available. Please save test cases first."
             );
+
+            noData.setStyle(
+                    "-fx-font-size: 16px;" +
+                            "-fx-text-fill: #947E6D;" +
+                            "-fx-background-color: #F0E3D8;" +
+                            "-fx-padding: 20px;" +
+                            "-fx-background-radius: 10px;"
+            );
+
+            VBox messageBox = new VBox(noData);
+            messageBox.setAlignment(javafx.geometry.Pos.CENTER);
+            messageBox.setMinHeight(350);
 
             VBox content = new VBox(
                     15,
                     title,
                     subtitle,
-                    noData
+                    messageBox
             );
 
             content.setPadding(new Insets(25));
+            content.setStyle("-fx-background-color: #FBF7F2;");
 
             getChildren().add(content);
 
@@ -77,6 +101,22 @@ public class Analytics extends VBox {
 
         lineChart.setPrefHeight(450);
         contextChart.setPrefHeight(450);
+
+        // Chart Styling
+        lineChart.setStyle(
+                        "-fx-background-color: #FBF7F2;" +
+                        "-fx-padding: 10px;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
+        contextChart.setStyle(
+                        "-fx-background-color: #FBF7F2;" +
+                        "-fx-padding: 10px;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
+        lineChart.lookup(".chart-plot-background");
+        contextChart.lookup(".chart-plot-background");
 
         for (List<Process> testCase : testCases) {
 
@@ -126,14 +166,48 @@ public class Analytics extends VBox {
         contextXaxis.setLabel("Context Switch Time");
         contextYaxis.setLabel("Average Time");
 
+        // Axis Styling
+        x_axis.setStyle("-fx-tick-label-fill: #63483C; -fx-text-fill: #63483C;");
+        y_axis.setStyle("-fx-tick-label-fill: #63483C; -fx-text-fill: #63483C;");
+
+        contextXaxis.setStyle("-fx-tick-label-fill: #63483C; -fx-text-fill: #63483C;");
+        contextYaxis.setStyle("-fx-tick-label-fill: #63483C; -fx-text-fill: #63483C;");
+
         Label quantumTitle = new Label("Quantum Analysis");
+        quantumTitle.setStyle(
+                "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
         Label contextTitle = new Label("Context Switch Analysis");
+        contextTitle.setStyle(
+                "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
 
         VBox quantumSection = new VBox(10, quantumTitle, lineChart);
         VBox contextSection = new VBox(10, contextTitle, contextChart);
 
         quantumSection.setPadding(new Insets(15));
         contextSection.setPadding(new Insets(15));
+
+        quantumSection.setStyle(
+                        "-fx-background-color: #F0E3D8;" +
+                        "-fx-background-radius: 12px;" +
+                        "-fx-border-color: #E2C6B2;" +
+                        "-fx-border-radius: 12px;" +
+                        "-fx-border-width: 1px;"
+        );
+
+        contextSection.setStyle(
+                        "-fx-background-color: #F0E3D8;" +
+                        "-fx-background-radius: 12px;" +
+                        "-fx-border-color: #E2C6B2;" +
+                        "-fx-border-radius: 12px;" +
+                        "-fx-border-width: 1px;"
+        );
 
         VBox content = new VBox(
                 15,
@@ -145,12 +219,19 @@ public class Analytics extends VBox {
 
         content.setPadding(new Insets(25));
         content.setFillWidth(true);
+        content.setStyle("-fx-background-color: #FBF7F2;");
 
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(false);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        scrollPane.setStyle(
+                        "-fx-background: #FBF7F2;" +
+                        "-fx-background-color: #FBF7F2;" +
+                        "-fx-border-color: transparent;"
+        );
 
         getChildren().add(scrollPane);
 
@@ -167,11 +248,9 @@ public class Analytics extends VBox {
     LineChart<Number, Number> contextChart = new LineChart<>(contextXaxis, contextYaxis);
 
     private List<Process> copyProcesses(List<Process> original) {
-
         List<Process> copies = new ArrayList<>();
 
         for (Process p : original) {
-
             copies.add(new Process(
                     p.getId(),
                     p.getArrivalTime(),

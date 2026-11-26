@@ -1,4 +1,3 @@
-
 package os.gui;
 
 import javafx.geometry.Insets;
@@ -23,8 +22,18 @@ public class Dashboard extends VBox {
               ObservableList<java.util.List<Process>> testCases) {
 
         Label title = new Label("Welcome to Cloud Scheduler");
+        title.setStyle(
+                        "-fx-font-size: 28px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
         Label subtitle = new Label(
                 "Monitor your CPU scheduling experiments."
+        );
+        subtitle.setStyle(
+                        "-fx-font-size: 14px;" +
+                        "-fx-text-fill: #947E6D;"
         );
 
         HBox statistics = new HBox(15);
@@ -41,6 +50,36 @@ public class Dashboard extends VBox {
         Button simulationButton = new Button("Run Simulation");
         Button analyticsButton = new Button("View Analytics");
 
+        processesButton.setStyle(
+                        "-fx-background-color: #A36F55;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 12px 20px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-cursor: hand;"
+        );
+
+        simulationButton.setStyle(
+                        "-fx-background-color: #63483C;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 12px 20px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-cursor: hand;"
+        );
+
+        analyticsButton.setStyle(
+                        "-fx-background-color: #947E6D;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 12px 20px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-cursor: hand;"
+        );
+
         processesButton.setOnAction(e -> mainLayout.ProcessView());
         simulationButton.setOnAction(e -> mainLayout.SimulationView());
         analyticsButton.setOnAction(e -> mainLayout.AnalyticsView());
@@ -49,16 +88,34 @@ public class Dashboard extends VBox {
                 processesButton, simulationButton, analyticsButton
         );
 
+        navigation.setAlignment(Pos.CENTER_LEFT);
+
+        Label overviewTitle = new Label("Overview");
+        overviewTitle.setStyle(
+                        "-fx-font-size: 19px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
+        Label quickActionsTitle = new Label("Quick Actions");
+        quickActionsTitle.setStyle(
+                        "-fx-font-size: 19px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
         getChildren().addAll(
                 title, subtitle,
-                new Label("Overview"),
+                overviewTitle,
                 statistics,
-                new Label("Quick Actions"),
+                quickActionsTitle,
                 navigation
         );
 
         setPadding(new Insets(30));
         setSpacing(20);
+
+        setStyle("-fx-background-color: #FBF7F2;");
 
         updateCounts(processes, testCases);
     }
@@ -66,10 +123,30 @@ public class Dashboard extends VBox {
     private VBox createCard(String title, Label value) {
         Label cardTitle = new Label(title);
 
+        cardTitle.setStyle(
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #947E6D;"
+        );
+
+        value.setStyle(
+                        "-fx-font-size: 24px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #A36F55;"
+        );
+
         VBox card = new VBox(12, cardTitle, value);
         card.setPadding(new Insets(20));
         card.setPrefWidth(200);
         card.setMinHeight(110);
+
+        card.setStyle(
+                        "-fx-background-color: #F0E3D8;" +
+                        "-fx-background-radius: 12px;" +
+                        "-fx-border-color: #E2C6B2;" +
+                        "-fx-border-radius: 12px;" +
+                        "-fx-border-width: 1px;"
+        );
 
         return card;
     }

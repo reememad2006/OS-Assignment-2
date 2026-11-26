@@ -1,4 +1,3 @@
-
 package os.gui;
 
 import javafx.collections.ObservableList;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 
 public class ProcessPage extends VBox {
 
@@ -19,10 +17,30 @@ public class ProcessPage extends VBox {
 
         Label title = new Label("Process");
 
+        title.setStyle(
+                        "-fx-font-size: 28px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
+
         idField.setPromptText("PID");
         arrivalField.setPromptText("ArrivalTime");
         burstField.setPromptText("BurstTime");
         priorityField.setPromptText("Priority");
+
+        String inputStyle =
+                        "-fx-background-color: #FFFFFF;" +
+                        "-fx-text-fill: #63483C;" +
+                        "-fx-prompt-text-fill: #B49B89;" +
+                        "-fx-border-color: #E2C6B2;" +
+                        "-fx-border-radius: 7px;" +
+                        "-fx-background-radius: 7px;" +
+                        "-fx-padding: 9px;";
+
+        idField.setStyle(inputStyle);
+        arrivalField.setStyle(inputStyle);
+        burstField.setStyle(inputStyle);
+        priorityField.setStyle(inputStyle);
 
         firstNameCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         secondNameCol.setCellValueFactory(new PropertyValueFactory<>("arrivalTime"));
@@ -75,9 +93,18 @@ public class ProcessPage extends VBox {
         Label subtitle = new Label(
                 "Add and manage processes for CPU scheduling."
         );
+        subtitle.setStyle(
+                        "-fx-font-size: 14px;" +
+                        "-fx-text-fill: #947E6D;"
+        );
 
         // Input section
         Label inputTitle = new Label("Process Information");
+        inputTitle.setStyle(
+                        "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
 
         GridPane inputGrid = new GridPane();
         inputGrid.setHgap(15);
@@ -101,18 +128,58 @@ public class ProcessPage extends VBox {
         deleteButton.setText("Clear Processes");
         clearTestCasesButton.setText("Clear Test Cases");
 
+        String buttonStyle =
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 10px 16px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-cursor: hand;";
+
+        runProcessPage.setStyle(
+                "-fx-background-color: #A36F55;" + buttonStyle
+        );
+
+        deleteButton.setStyle(
+                "-fx-background-color: #947E6D;" + buttonStyle
+        );
+
+        saveButton.setStyle(
+                "-fx-background-color: #63483C;" + buttonStyle
+        );
+
+        clearTestCasesButton.setStyle(
+                "-fx-background-color: #B58B72;" + buttonStyle
+        );
+
         HBox buttons = new HBox(12,
                 runProcessPage, deleteButton, saveButton, clearTestCasesButton
         );
 
         // Table section
         Label tableTitle = new Label("Processes List");
+        tableTitle.setStyle(
+                        "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #63483C;"
+        );
 
         table.setColumnResizePolicy(
                 TableView.CONSTRAINED_RESIZE_POLICY
         );
 
         table.setPrefHeight(350);
+
+        // Table Styling
+        table.setStyle(
+                        "-fx-background-color: #F0E3D8;" +
+                        "-fx-control-inner-background: #FBF7F2;" +
+                        "-fx-control-inner-background-alt: #F7EEE6;" +
+                        "-fx-border-color: #E2C6B2;" +
+                        "-fx-border-radius: 8px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-table-cell-border-color: #E2C6B2;"
+        );
 
         getChildren().addAll(
                 title,
@@ -127,6 +194,9 @@ public class ProcessPage extends VBox {
         setPadding(new Insets(25));
         setSpacing(15);
         setFillWidth(true);
+
+        // Page Background
+        setStyle("-fx-background-color: #FBF7F2;");
     }
 
     TableView<Process> table = new TableView<>();
