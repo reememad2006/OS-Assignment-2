@@ -22,6 +22,7 @@ public class ACSScheduler implements Scheduler{
     private int finishedCount;
     private int contextSwitchCount;
     private Process lastProcess;
+    private final Map<Process, Integer> shownPriority = new HashMap<>();
 
     public ACSScheduler(int quantum, int contextSwitch){
         this.quantum = quantum;
@@ -39,6 +40,7 @@ public class ACSScheduler implements Scheduler{
         // resetting scheduler's state
         tier1.clear();
         tier2.clear();
+        shownPriority.clear();
         timeline = new ArrayList<>();
         demotionMatrix = new ArrayList<>();
 
@@ -77,12 +79,15 @@ public class ACSScheduler implements Scheduler{
 
     private void runTier1Slice(){
         Process p = tier1.poll();
+        boolean switched = false;
 
         if(lastProcess != null && lastProcess != p)
         {
             if (contextSwitch > 0) {
+                switched = true;
                 logEvent(time, "Context switch saves " + lastProcess.getId()
-                + " and loads " + p.getId(), p, 1, time);
+                        + " and loads " + p.getId(), p, 1, time);
+                timeline.add("CS " + time + "-" + (time + contextSwitch));
                 logArrivalsDuring(time, time + contextSwitch);
             }
 
@@ -100,7 +105,7 @@ public class ACSScheduler implements Scheduler{
         int slice = Math.min(quantum, p.getRemainingTime());
         int start = time;
 
-        logEvent(start, "Running: " + p.getId(), p, 1, start);
+        logEvent(start, "Running: " + p.getId(), switched ? null : p, switched ? 0 : 1, start);
         logArrivalsDuring(start, start + slice);
 
         time += slice;
@@ -127,6 +132,7 @@ public class ACSScheduler implements Scheduler{
     private void demote(Process p){
         p.setBatch(true);
         p.setTier2EntryTime(time);
+        shownPriority.put(p, p.getPriority());
         tier2.add(p);
 
     }
@@ -136,11 +142,14 @@ public class ACSScheduler implements Scheduler{
         logAging();
         Process p = pickHighestPriority();
         tier2.remove(p);
+        boolean switched = false;
 
         if (lastProcess != null && lastProcess != p) {
             if (contextSwitch > 0) {
+                switched = true;
                 logEvent(time, "Context switch saves " + lastProcess.getId()
                         + " and loads " + p.getId(), p, 2, time);
+                timeline.add("CS " + time + "-" + (time + contextSwitch));
                 logArrivalsDuring(time, time + contextSwitch);
             }
 
@@ -151,7 +160,7 @@ public class ACSScheduler implements Scheduler{
 
         int start = time;
 
-        logEvent(start, "Running: " + p.getId(), p, 2, start);
+        logEvent(start, "Running: " + p.getId(), switched ? null : p, switched ? 0 : 2, start);
         logArrivalsDuring(start, start + p.getRemainingTime());
 
         time += p.getRemainingTime();
@@ -220,7 +229,7 @@ public class ACSScheduler implements Scheduler{
             parts.add(describe(p, p.getRemainingTime(), p.getPriority()));
 
         for (int i = nextArrivalIdx; i < allProcesses.size()
-                 && allProcesses.get(i).getArrivalTime() <=t; i++) {
+                && allProcesses.get(i).getArrivalTime() <=t; i++) {
             Process p = allProcesses.get(i);
             parts.add(describe(p, p.getRemainingTime(), p.getPriority()));
         }
@@ -230,15 +239,17 @@ public class ACSScheduler implements Scheduler{
     }
 
     private String formatTier2(int t, Process current, int tier, int remaining, int shownSince) {
+        List<Process> all = new ArrayList<>(tier2);
+        if (current != null && tier == 2 && !all.contains(current))
+            all.add(current);
+
+        all.sort(Comparator.comparingInt(Process::getTier2EntryTime)
+                .thenComparingInt(Process::getArrivalTime));
+
         List<String> parts = new ArrayList<>();
-
-        if (current != null && tier == 2)
-            parts.add(describe(current, remaining,
-                    effectivePriorityAt(current, shownSince)));
-
-        for (Process p : tier2)
-            parts.add(describe(p, p.getRemainingTime(),
-                    effectivePriorityAt(p, t)));
+        for (Process p : all)
+            parts.add(describe(p, p.getRemainingTime() == 0 && p == current ? remaining : p.getRemainingTime(),
+                    shownPriority.getOrDefault(p, p.getPriority())));
 
         return parts.isEmpty() ? "[Empty]" : "[" + String.join(", ", parts) + "]";
     }
@@ -248,8 +259,8 @@ public class ACSScheduler implements Scheduler{
 
         demotionMatrix.add(
                 "T=" + t + "|" + action + "\n"
-                + " Tier 1: " + formatTier1(t, current, tier, rem) + "\n"
-                + " Tier 2: " + formatTier2(t, current, tier, rem, shownSince)
+                        + " Tier 1: " + formatTier1(t, current, tier, rem) + "\n"
+                        + " Tier 2: " + formatTier2(t, current, tier, rem, shownSince)
         );
     }
 
@@ -261,7 +272,7 @@ public class ACSScheduler implements Scheduler{
             if (a > from && a != lastLogged) {
                 StringBuilder ids = new StringBuilder();
                 for (int j = i; j < allProcesses.size()
-                     && allProcesses.get(j).getArrivalTime() == a; j++) {
+                        && allProcesses.get(j).getArrivalTime() == a; j++) {
                     if (ids.length() > 0) ids.append(", ");
                     ids.append(allProcesses.get(j).getId());
                 }
@@ -275,17 +286,18 @@ public class ACSScheduler implements Scheduler{
     private void logAging() {
         if (tier2.isEmpty()) return;
 
-        StringBuilder sb = new StringBuilder("--- Aging check at T=" + time + " ---\n");
+        StringBuilder sb = new StringBuilder("--- Aging check at T = " + time + " ---\n");
 
         for (Process p : tier2) {
             int waited = time - p.getTier2EntryTime();
             int boost = waited / agingInterval;
-            sb.append(p.getId() + ": Waited from T = " + p.getTier2EntryTime() + " to T= " + time
-                    + " (" + waited + " units). Aging: floor(" + waited + "/" + agingInterval
-                    + ") = " + boost +". Effective Priority = " + p.getPriority()
+            shownPriority.put(p, p.getPriority() - boost);
+            sb.append(p.getId() + ": Waited from T = " + p.getTier2EntryTime() + " to T = " + time
+                    + " (" + waited + " units). Aging: " + waited + "/" + agingInterval
+                    + " = " + boost +". Effective Priority = " + p.getPriority()
                     + " - " + boost + " = " + (p.getPriority() - boost) + "\n"
             );
         }
-        demotionMatrix.add(sb.toString());
+        if (tier2.size() > 1) demotionMatrix.add(sb.toString());
     }
 }
