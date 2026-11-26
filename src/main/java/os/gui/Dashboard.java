@@ -1,15 +1,86 @@
+
 package os.gui;
 
 import javafx.geometry.Insets;
-import javafx.scene.layout.VBox;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.collections.ObservableList;
+import os.scheduler.Process;
 
 public class Dashboard extends VBox {
-    Dashboard(){
-        Label title = new Label("Dashboard");
-        getChildren().add(title);
-        setPadding(new Insets(20));
-        setSpacing(15);
 
+    private Label processCount = new Label();
+    private Label testCaseCount = new Label();
+    private Label waitingValue = new Label("Not run yet");
+    private Label turnaroundValue = new Label("Not run yet");
+
+    Dashboard(MainLayout mainLayout,
+              ObservableList<Process> processes,
+              ObservableList<java.util.List<Process>> testCases) {
+
+        Label title = new Label("Welcome to Cloud Scheduler");
+        Label subtitle = new Label(
+                "Monitor your CPU scheduling experiments."
+        );
+
+        HBox statistics = new HBox(15);
+
+        statistics.getChildren().addAll(
+                createCard("Total Processes", processCount),
+                createCard("Saved Test Cases", testCaseCount),
+                createCard("Average Waiting", waitingValue),
+                createCard("Average Turnaround", turnaroundValue)
+        );
+
+        Button processesButton = new Button("Manage Processes");
+        Button simulationButton = new Button("Run Simulation");
+        Button analyticsButton = new Button("View Analytics");
+
+        processesButton.setOnAction(e -> mainLayout.ProcessView());
+        simulationButton.setOnAction(e -> mainLayout.SimulationView());
+        analyticsButton.setOnAction(e -> mainLayout.AnalyticsView());
+
+        HBox navigation = new HBox(10,
+                processesButton, simulationButton, analyticsButton
+        );
+
+        getChildren().addAll(
+                title, subtitle,
+                new Label("Overview"),
+                statistics,
+                new Label("Quick Actions"),
+                navigation
+        );
+
+        setPadding(new Insets(30));
+        setSpacing(20);
+
+        updateCounts(processes, testCases);
+    }
+
+    private VBox createCard(String title, Label value) {
+        Label cardTitle = new Label(title);
+
+        VBox card = new VBox(12, cardTitle, value);
+        card.setPadding(new Insets(20));
+        card.setPrefWidth(200);
+        card.setMinHeight(110);
+
+        return card;
+    }
+
+    void updateCounts(ObservableList<Process> processes,
+                      ObservableList<java.util.List<Process>> testCases) {
+
+        processCount.setText(String.valueOf(processes.size()));
+        testCaseCount.setText(String.valueOf(testCases.size()));
+    }
+
+    void updateResults(double waiting, double turnaround) {
+        waitingValue.setText(String.format("%.2f", waiting));
+        turnaroundValue.setText(String.format("%.2f", turnaround));
     }
 }
